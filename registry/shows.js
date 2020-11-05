@@ -73,7 +73,7 @@ shows.package = function (doc, req) {
       p._id = p.name + '@' + p.version
       doc.versions[clean] = p
     }
-
+/*
     if (doc.versions[v].dist.tarball) {
       // if there is an attachment for this tarball, then use that.
       // make it point at THIS registry that is being requested,
@@ -126,7 +126,7 @@ shows.package = function (doc, req) {
 
         doc.versions[v].dist.tarball = h + t
       }
-    }
+    }*/
   }
   if (doc["dist-tags"]) for (var tag in doc["dist-tags"]) {
     var clean = semver.clean(doc["dist-tags"][tag], true)

@@ -324,6 +324,7 @@ updates.package = function (doc, req) {
     latestCopy(doc)
     readmeTrim(doc)
     descTrim(doc)
+    fixTarball(doc)
 
     if (!doc.maintainers)
       return error("no maintainers. Please upgrade your npm client.")
@@ -352,6 +353,36 @@ updates.package = function (doc, req) {
 
     vers = vers.sort(semver.compare)
     tags.latest = vers.pop()
+  }
+
+  function getUnscopedName(name) {
+     return name.match(/^(?:@[^\/]+\/)?([^\/]+)$/)[1];
+  }
+
+  function fixTarball(fullDescription) {
+    var name = fullDescription.name;
+    var DownloadsBasePath =
+        name.replace("/", "%2F") +
+        "/-/" +
+        getUnscopedName(name) + "-";
+
+    for (version in fullDescription.versions) {
+      var individual = fullDescription.versions[version];
+
+      individual.dist.tarball = individual.dist.tarball
+        .replace(/^https?:(\/\/[^\/]+).*/, function (_, origin)
+      {
+        return  "https:" + origin + "/" + DownloadsBasePath + version + ".tgz";
+      });
+    }
+
+    var attachments = fullDescription._attachments;
+
+    for (filename in attachments)
+      if (getUnscopedName(filename) !== filename) {
+        attachments[getUnscopedName(filename)] = attachments[filename];
+        delete attachments[filename];
+      }
   }
 
   // Create new package doc
